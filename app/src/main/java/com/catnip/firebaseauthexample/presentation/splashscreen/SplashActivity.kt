@@ -24,6 +24,7 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         checkIfUserLogin()
+       // throw IllegalStateException("Test Crashlytics")
     }
 
     private fun checkIfUserLogin() {
