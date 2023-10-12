@@ -10,10 +10,12 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.catnip.firebaseauthexample.R
+import com.catnip.firebaseauthexample.data.model.User
 import com.catnip.firebaseauthexample.data.network.firebase.auth.FirebaseAuthDataSourceImpl
 import com.catnip.firebaseauthexample.data.repository.UserRepositoryImpl
 import com.catnip.firebaseauthexample.databinding.ActivityLoginBinding
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         //todo : change photo profile here
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -57,6 +60,9 @@ class MainActivity : AppCompatActivity() {
         binding.tvLogout.setOnClickListener {
             doLogout()
         }
+        binding.btnChangeProfile.setOnClickListener {
+            changeProfileData()
+        }
     }
 
     private fun requestChangePassword() {
@@ -65,9 +71,9 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setMessage(
                 "Change password request sent to your email" +
-                "${viewModel.getCurrentUser()?.email}"
+                        "${viewModel.getCurrentUser()?.email}"
             )
-            .setPositiveButton("Okay"){ _, _ ->
+            .setPositiveButton("Okay") { _, _ ->
                 // do nothing
             }.create().show()
     }
@@ -78,10 +84,10 @@ class MainActivity : AppCompatActivity() {
             .setMessage(
                 "Do you want to logout ?"
             )
-            .setPositiveButton("Yes"){ _, _ ->
+            .setPositiveButton("Yes") { _, _ ->
                 viewModel.doLogout()
                 navigateToLogin()
-            }.setNegativeButton("No"){ _, _ ->
+            }.setNegativeButton("No") { _, _ ->
 
             }.create().show()
 
@@ -95,25 +101,67 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun observeData() {
+        //todo : observe result change photo and detail
+        viewModel.changeProfileResult.observe(this) {
+            it.proceedWhen(
+                doOnSuccess = {
+                    binding.pbLoading.isVisible = false
+                    binding.btnChangeProfile.isVisible = true
+                    binding.btnChangeProfile.isEnabled = true
+                    showUserData()
+                },
+                doOnLoading = {
+                    binding.pbLoading.isVisible = true
+                    binding.btnChangeProfile.isVisible = false
+                },
+                doOnError = {
+                    binding.pbLoading.isVisible = false
+                    binding.btnChangeProfile.isVisible = true
+                    binding.btnChangeProfile.isEnabled = true
+                    Toast.makeText(
+                        this,
+                        "Change Profile Failed : ${it.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+        }
+
+    }
+
     private fun changeProfileData() {
         //todo :  change fullname data
+        if (checkNameValidation()) {
+            val name = binding.layoutForm.etName.text.toString().trim()
+            viewModel.changeProfile(name)
+        }
     }
 
     private fun checkNameValidation(): Boolean {
         //todo :  check if name is valid
-        return false
-    }
-
-    private fun observeData() {
-        //todo : observe result change photo and detail
+        return if (binding.layoutForm.etName.text?.isEmpty() == true) {
+            binding.layoutForm.tilName.isErrorEnabled = true
+            binding.layoutForm.tilName.error = getString(R.string.text_error_name_cannot_empty)
+            false
+        } else {
+            binding.layoutForm.tilName.isErrorEnabled = false
+            true
+        }
     }
 
     private fun setupForm() {
         //todo : setup form that required in this page
+        binding.layoutForm.tilName.isVisible = true
+        binding.layoutForm.tilEmail.isVisible = true
+
     }
 
     private fun showUserData() {
         //todo : show user data to the views
+        binding.layoutForm.etName.setText(viewModel.getCurrentUser()?.fullName)
+        binding.layoutForm.etEmail.setText(viewModel.getCurrentUser()?.email)
+        binding.layoutForm.tilEmail.isEnabled = false
 
     }
 
