@@ -16,4 +16,13 @@ Github : https://github.com/hermasyp
  **/
 class MainViewModel(private val repo: UserRepository) : ViewModel() {
 
+    fun getCurrentUser() = repo.getCurrentUser()
+
+    fun createChangePwdRequest(){
+        repo.sendChangePasswordRequestByEmail()
+    }
+
+    fun doLogout(){
+        repo.doLogout()
+    }
 }

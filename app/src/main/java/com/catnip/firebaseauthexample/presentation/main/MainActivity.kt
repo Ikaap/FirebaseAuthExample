@@ -51,19 +51,48 @@ class MainActivity : AppCompatActivity() {
 
     private fun setClickListeners() {
         //todo : set click listener
+        binding.tvChangePwd.setOnClickListener {
+            requestChangePassword()
+        }
+        binding.tvLogout.setOnClickListener {
+            doLogout()
+        }
     }
 
     private fun requestChangePassword() {
         //todo : request change password to viewmodel and show dialog
+        viewModel.createChangePwdRequest()
+        AlertDialog.Builder(this)
+            .setMessage(
+                "Change password request sent to your email" +
+                "${viewModel.getCurrentUser()?.email}"
+            )
+            .setPositiveButton("Okay"){ _, _ ->
+                // do nothing
+            }.create().show()
     }
 
     private fun doLogout() {
         //todo :  show dialog, if yes proceed logout
+        AlertDialog.Builder(this)
+            .setMessage(
+                "Do you want to logout ?"
+            )
+            .setPositiveButton("Yes"){ _, _ ->
+                viewModel.doLogout()
+                navigateToLogin()
+            }.setNegativeButton("No"){ _, _ ->
+
+            }.create().show()
 
     }
 
     private fun navigateToLogin() {
         //todo :  navigate to login
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
     }
 
     private fun changeProfileData() {

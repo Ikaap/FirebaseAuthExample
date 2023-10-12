@@ -55,10 +55,17 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setClickListeners() {
         //todo :set click listener
+        binding.tvNavToRegister.highLightWord(getString(R.string.text_highlight_register)) {
+            navigateToRegister()
+        }
     }
 
     private fun navigateToRegister() {
         //todo : navigate to register
+        val intent = Intent(this, RegisterActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(intent)
     }
 
     private fun doLogin() {
